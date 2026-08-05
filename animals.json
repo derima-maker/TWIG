@@ -1,0 +1,12 @@
+[
+  { "name": "Cow", "url": "https://placehold.co/400x300?text=Cow" },
+  { "name": "Horse", "url": "https://placehold.co/400x300?text=Horse" },
+  { "name": "Sheep", "url": "https://placehold.co/400x300?text=Sheep" },
+  { "name": "Pig", "url": "https://placehold.co/400x300?text=Pig" },
+  { "name": "Chicken", "url": "https://placehold.co/400x300?text=Chicken" },
+  { "name": "Duck", "url": "https://placehold.co/400x300?text=Duck" },
+  { "name": "Goat", "url": "https://placehold.co/400x300?text=Goat" },
+  { "name": "Donkey", "url": "https://placehold.co/400x300?text=Donkey" },
+  { "name": "Turkey", "url": "https://placehold.co/400x300?text=Turkey" },
+  { "name": "Rabbit", "url": "https://placehold.co/400x300?text=Rabbit" }
+]
