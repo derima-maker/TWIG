@@ -3,92 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farm Animal Gallery</title>
+    <title>Calculator</title>
     <style>
+        :root {
+            --bg: #f5f5f7;
+            --calc-bg: #ffffff;
+            --display-bg: #1c1c1e;
+            --display-text: #ffffff;
+            --btn-number: #e0e0e0;
+            --btn-operator: #ff9500;
+            --btn-function: #d4d4d2;
+            --btn-text: #1d1d1f;
+            --btn-text-light: #ffffff;
+        }
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f7;
-            color: #1d1d1f;
-            min-height: 100vh;
+            background: var(--bg);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 24px;
+            min-height: 100vh;
+            padding: 20px;
         }
-        h1 { font-size: 32px; font-weight: 700; margin-bottom: 24px; color: #34a853; }
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 900px;
-            width: 100%;
-        }
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        .calculator {
+            background: var(--calc-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 300px;
             overflow: hidden;
-            transition: transform 0.2s;
         }
-        .card:hover { transform: translateY(-4px); }
-        .card img {
+        .display {
+            background: var(--display-bg);
+            color: var(--display-text);
+            font-size: 36px;
+            padding: 24px;
+            text-align: right;
+            min-height: 90px;
+            word-break: break-all;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 16px;
+        }
+        button {
+            border: none;
+            border-radius: 50%;
+            font-size: 22px;
+            font-weight: 500;
+            height: 60px;
+            width: 60px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:active { opacity: 0.7; }
+        .number { background: var(--btn-number); color: var(--btn-text); }
+        .operator { background: var(--btn-operator); color: var(--btn-text-light); }
+        .function { background: var(--btn-function); color: var(--btn-text); }
+        .zero {
+            grid-column: span 2;
             width: 100%;
-            height: 160px;
-            object-fit: cover;
-            background: #e0e0e0;
-        }
-        .card .name {
-            font-weight: 600;
-            font-size: 16px;
-            text-align: center;
-            padding: 12px;
+            border-radius: 30px;
         }
     </style>
 </head>
 <body>
-    <h1>🐄 Farm Animals</h1>
-    <div class="gallery" id="gallery"></div>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="function" onclick="clearDisplay()">C</button>
+            <button class="function" onclick="toggleSign()">±</button>
+            <button class="function" onclick="percentage()">%</button>
+            <button class="operator" onclick="appendOperator('/')">÷</button>
+
+            <button class="number" onclick="appendNumber('7')">7</button>
+            <button class="number" onclick="appendNumber('8')">8</button>
+            <button class="number" onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="appendOperator('*')">×</button>
+
+            <button class="number" onclick="appendNumber('4')">4</button>
+            <button class="number" onclick="appendNumber('5')">5</button>
+            <button class="number" onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="appendOperator('-')">−</button>
+
+            <button class="number" onclick="appendNumber('1')">1</button>
+            <button class="number" onclick="appendNumber('2')">2</button>
+            <button class="number" onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+
+            <button class="number zero" onclick="appendNumber('0')">0</button>
+            <button class="number" onclick="appendDecimal()">.</button>
+            <button class="operator" onclick="calculate()">=</button>
+        </div>
+    </div>
 
     <script>
-        // If the page is loaded with ?json, output only the JSON data and stop
-        if (window.location.search.includes('json')) {
-            document.body.textContent = JSON.stringify([
-                { "name": "Cow", "url": "https://placehold.co/400x300?text=Cow" },
-                { "name": "Horse", "url": "https://placehold.co/400x300?text=Horse" },
-                { "name": "Sheep", "url": "https://placehold.co/400x300?text=Sheep" },
-                { "name": "Pig", "url": "https://placehold.co/400x300?text=Pig" },
-                { "name": "Chicken", "url": "https://placehold.co/400x300?text=Chicken" },
-                { "name": "Duck", "url": "https://placehold.co/400x300?text=Duck" },
-                { "name": "Goat", "url": "https://placehold.co/400x300?text=Goat" },
-                { "name": "Donkey", "url": "https://placehold.co/400x300?text=Donkey" },
-                { "name": "Turkey", "url": "https://placehold.co/400x300?text=Turkey" },
-                { "name": "Rabbit", "url": "https://placehold.co/400x300?text=Rabbit" }
-            ]);
-            throw new Error('stop'); // prevent further rendering
+        // ---- Calculator logic ----
+        let currentInput = '';
+        let expression = '';
+
+        function updateDisplay() {
+            document.getElementById('display').textContent = currentInput || '0';
         }
 
-        // Normal gallery rendering
-        const animals = [
-            { name: "Cow", url: "https://placehold.co/400x300?text=Cow" },
-            { name: "Horse", url: "https://placehold.co/400x300?text=Horse" },
-            { name: "Sheep", url: "https://placehold.co/400x300?text=Sheep" },
-            { name: "Pig", url: "https://placehold.co/400x300?text=Pig" },
-            { name: "Chicken", url: "https://placehold.co/400x300?text=Chicken" },
-            { name: "Duck", url: "https://placehold.co/400x300?text=Duck" },
-            { name: "Goat", url: "https://placehold.co/400x300?text=Goat" },
-            { name: "Donkey", url: "https://placehold.co/400x300?text=Donkey" },
-            { name: "Turkey", url: "https://placehold.co/400x300?text=Turkey" },
-            { name: "Rabbit", url: "https://placehold.co/400x300?text=Rabbit" }
-        ];
+        function appendNumber(num) {
+            currentInput += num;
+            updateDisplay();
+        }
 
-        const gallery = document.getElementById('gallery');
-        gallery.innerHTML = animals.map(a => `
-            <div class="card">
-                <img src="${a.url}" alt="${a.name}">
-                <div class="name">${a.name}</div>
-            </div>
-        `).join('');
+        function appendDecimal() {
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+                updateDisplay();
+            }
+        }
+
+        function appendOperator(op) {
+            if (currentInput === '' && expression !== '') {
+                // change last operator
+                expression = expression.slice(0, -1) + op;
+            } else {
+                expression += currentInput + op;
+                currentInput = '';
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            expression = '';
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (currentInput !== '') {
+                currentInput = currentInput.startsWith('-') ? currentInput.slice(1) : '-' + currentInput;
+                updateDisplay();
+            }
+        }
+
+        function percentage() {
+            if (currentInput !== '') {
+                currentInput = (parseFloat(currentInput) / 100).toString();
+                updateDisplay();
+            }
+        }
+
+        function calculate() {
+            try {
+                const fullExpression = expression + currentInput;
+                // Replace × and ÷ with * and /
+                const sanitized = fullExpression.replace(/×/g, '*').replace(/÷/g, '/');
+                const result = eval(sanitized);
+                currentInput = Number.isInteger(result) ? result.toString() : parseFloat(result.toFixed(8)).toString();
+                expression = '';
+                updateDisplay();
+            } catch {
+                currentInput = 'Error';
+                expression = '';
+                updateDisplay();
+            }
+        }
+
+        // ---- API mode: return JSON if URL has ?calc=... ----
+        const urlParams = new URLSearchParams(window.location.search);
+        const calcParam = urlParams.get('calc');
+        if (calcParam) {
+            try {
+                const sanitized = calcParam.replace(/×/g, '*').replace(/÷/g, '/');
+                const result = eval(sanitized);
+                // Replace entire body with JSON output
+                document.body.innerHTML = '';
+                document.body.textContent = JSON.stringify({ result: result });
+            } catch {
+                document.body.innerHTML = '';
+                document.body.textContent = JSON.stringify({ error: 'Invalid expression' });
+            }
+            throw new Error('stop'); // stop further rendering
+        }
     </script>
 </body>
 </html>
