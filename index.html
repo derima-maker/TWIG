@@ -14,9 +14,8 @@
             document.body.textContent = JSON.stringify({ error: 'Invalid expression' });
         }
     } else {
-        document.body.textContent = 'Calculator API – use ?calc=2+2';
+        document.body.textContent = JSON.stringify({ error: 'No expression provided' });
     }
 </script>
 </body>
 </html>
-
